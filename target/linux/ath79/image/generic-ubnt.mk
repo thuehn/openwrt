@@ -67,6 +67,16 @@ define Device/ubnt-sw
   KERNEL := kernel-bin | append-dtb | relocate-kernel | lzma | uImage lzma
 endef
 
+define Device/ubnt-2wa
+  $(Device/ubnt)
+  SOC := ar9342
+  IMAGE_SIZE := 15744k
+  UBNT_BOARD := WA
+  UBNT_CHIP := ar934x
+  UBNT_TYPE := 2WA
+  UBNT_VERSION := 8.5.3
+endef
+
 define Device/ubnt-wa
   $(Device/ubnt)
   SOC := ar9342
@@ -110,6 +120,18 @@ define Device/ubnt-xw
   UBNT_VERSION := 6.0.4
 endef
 
+define Device/ubnt-unifi-jffs2
+  $(Device/ubnt)
+  KERNEL_SIZE := 3072k
+  IMAGE_SIZE := 15744k
+  UBNT_TYPE := BZ
+  KERNEL := kernel-bin | append-dtb | lzma | uImage lzma | jffs2 kernel0
+  IMAGES := sysupgrade.bin factory.bin
+  IMAGE/sysupgrade.bin := append-kernel | pad-to $$$$(KERNEL_SIZE) | append-rootfs |\
+	pad-rootfs | append-metadata | check-size
+  IMAGE/factory.bin := $$(IMAGE/sysupgrade.bin) | mkubntimage2
+endef
+
 define Device/ubnt-acb
   $(Device/ubnt)
   IMAGE_SIZE := 15744k
@@ -143,6 +165,13 @@ define Device/ubnt_airrouter
   SUPPORTED_DEVICES += airrouter
 endef
 TARGET_DEVICES += ubnt_airrouter
+
+define Device/ubnt_bullet-ac
+  $(Device/ubnt-2wa)
+  DEVICE_MODEL := Bullet AC
+  DEVICE_PACKAGES += kmod-ath10k-ct-smallbuffers ath10k-firmware-qca988x-ct rssileds
+endef
+TARGET_DEVICES += ubnt_bullet-ac
 
 define Device/ubnt_bullet-m-ar7240
   $(Device/ubnt-xm)
@@ -299,6 +328,14 @@ define Device/ubnt_powerbeam-5ac-gen2
 endef
 TARGET_DEVICES += ubnt_powerbeam-5ac-gen2
 
+define Device/ubnt_powerbeam-m-xw
+  $(Device/ubnt-xw)
+  DEVICE_MODEL := PowerBeam M
+  DEVICE_PACKAGES += rssileds
+  SUPPORTED_DEVICES += loco-m-xw
+endef
+TARGET_DEVICES += ubnt_powerbeam-m-xw
+
 define Device/ubnt_powerbridge-m
   $(Device/ubnt-xm)
   SOC := ar7241
@@ -307,6 +344,15 @@ define Device/ubnt_powerbridge-m
   SUPPORTED_DEVICES += bullet-m
 endef
 TARGET_DEVICES += ubnt_powerbridge-m
+
+define Device/ubnt_rocket-5ac-lite
+  $(Device/ubnt-xc)
+  SOC := qca9558
+  DEVICE_MODEL := Rocket 5AC
+  DEVICE_VARIANT := Lite
+  DEVICE_PACKAGES := kmod-ath10k-ct ath10k-firmware-qca988x-ct
+endef
+TARGET_DEVICES += ubnt_rocket-5ac-lite
 
 define Device/ubnt_rocket-m
   $(Device/ubnt-xm)
@@ -403,19 +449,19 @@ define Device/ubnt_unifiac-pro
 endef
 TARGET_DEVICES += ubnt_unifiac-pro
 
+define Device/ubnt_unifi-ap-outdoor-plus
+  $(Device/ubnt-bz)
+  $(Device/ubnt-unifi-jffs2)
+  DEVICE_MODEL := UniFi AP Outdoor+
+  SUPPORTED_DEVICES += unifi-outdoor-plus
+endef
+TARGET_DEVICES += ubnt_unifi-ap-outdoor-plus
+
 define Device/ubnt_unifi-ap-pro
+  $(Device/ubnt-unifi-jffs2)
   SOC := ar9344
-  DEVICE_VENDOR := Ubiquiti
   DEVICE_MODEL := UniFi AP Pro
-  UBNT_TYPE := BZ
   UBNT_CHIP := ar934x
-  KERNEL_SIZE := 3072k
-  IMAGE_SIZE := 15744k
-  KERNEL := kernel-bin | append-dtb | lzma | uImage lzma | jffs2 kernel0
-  IMAGES := sysupgrade.bin factory.bin
-  IMAGE/sysupgrade.bin := append-kernel | pad-to $$$$(KERNEL_SIZE) | append-rootfs |\
-	pad-rootfs | append-metadata | check-size
-  IMAGE/factory.bin := $$(IMAGE/sysupgrade.bin) | mkubntimage2
   SUPPORTED_DEVICES += uap-pro
 endef
 TARGET_DEVICES += ubnt_unifi-ap-pro
